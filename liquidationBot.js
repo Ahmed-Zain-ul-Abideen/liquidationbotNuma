@@ -15,7 +15,7 @@ const numaBorrower = args.includes('-n');
 
 
 // extract chain name (first non-flag argument)
-const chainName = args.find(arg => !arg.startsWith('-'));
+const chainName = process.env.CHAIN || args.find(arg => !arg.startsWith('-'));
 
 if (!chainName) {
   console.error("Usage: node bot.js <chainName> [options]");
