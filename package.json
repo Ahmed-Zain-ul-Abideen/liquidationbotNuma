@@ -21,7 +21,8 @@
   "description": "",
   "dependencies": {
     "dotenv": "^16.4.7",
-    "ethers": "^6.13.5"
+    "ethers": "^6.13.5",
+    "express": "^5.1.0"
   },
   "devDependencies": {
     "dotenv-cli": "^10.0.0"
