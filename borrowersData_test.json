@@ -1,0 +1,32 @@
+[
+  {
+    "address": "0x760c3c9C5985E29cf4239FA1E938a19471393acd",
+    "borrowSts": 5000,
+    "collateralSts": 4804.846178880454,
+    "collateralInsTsNoCF": 5057.7328198741625,
+    "liquidity": 0,
+    "shortfall": 195.15382111954548,
+    "badDebt": 0,
+    "ltv": 0.9885852373127928,
+    "ltvpct": 98.85852373127928,
+    "liquidationType": 1,
+    "liquidationAmount": 5000,
+    "vaultBalance": 493805.64891168824,
+    "liquidityInVault": true
+  },
+  {
+    "address": "0xB1616BF7B4096ad698b92c64FAa8198d83158889",
+    "borrowSts": 60000,
+    "collateralSts": 48048.46178881223,
+    "collateralInsTsNoCF": 50577.32819874972,
+    "liquidity": 0,
+    "shortfall": 11951.538211187768,
+    "badDebt": 9422.67180125028,
+    "ltv": 1.1863022847751616,
+    "ltvpct": 118.63022847751616,
+    "liquidationType": 3,
+    "liquidationAmount": 49584.615881127174,
+    "vaultBalance": 493805.64891168824,
+    "liquidityInVault": true
+  }
+]

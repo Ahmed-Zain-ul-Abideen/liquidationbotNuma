@@ -1,0 +1,17 @@
+[
+  {
+    "address": "0xC16aa4f009F92Beb48e5072D2CA432Eee03dCd9C",
+    "borrowSts": 3399.5121168240926,
+    "collateralSts": 0.000057535799999992,
+    "collateralInsTsNoCF": 0.000060563999999992,
+    "liquidity": 0,
+    "shortfall": 3399.5120592882927,
+    "badDebt": 3399.5120562600923,
+    "ltv": 56130904.77551915,
+    "ltvpct": 5613090477.551914,
+    "liquidationType": 3,
+    "liquidationAmount": 1699.7560584120463,
+    "vaultBalance": 51.10173191175036,
+    "liquidityInVault": false
+  }
+]

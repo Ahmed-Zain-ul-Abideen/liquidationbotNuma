@@ -1,0 +1,36 @@
+{
+  "arbitrum": {
+    "comptroller": "0x057b326b5f3a0665b891d977e9cdb9e921821bc0",
+    "cNuma": "0x3051b18b868f87f9b7ddcb2febb8b0abc3b75bee",
+    "cLst": "0xcca00ada34180a45c74d011234dacea10362c798",
+    "vault": "0x9857127d6987a177d87c13d2dfdaa771bf625a69",
+    "oracle": "0xa199d97fad6d1178575bb47667f6b72f83432ee8",
+    "lst": "0xec70dcb4a1efa46b8f2d97c310c9c4790ba5ffa8",
+    "RPC_URL": "RPC_URL_ARBITRUM",
+    "PRIVATE_KEY": "PRIVATE_KEY"
+  },
+  "sonic": {
+    "comptroller": "0x30047cca309b7aac3613ae5b990cf460253c9b98",
+    "cNuma": "0x16d4b53de6aba4b68480c7a3b6711df25fcb12d7",
+    "cLst": "0xb2a43445b97cd6a179033788d763b8d0c0487e36",
+    "vault": "0xed84043cba395bd3eacec6b378e49cd66e94941d",
+    "oracle": "0xa92025d87128c1e2dcc0a08afbc945547ca3b084",
+    "lst": "0xe5da20f15420ad15de0fa650600afc998bbe3955",
+    "RPC_URL": "RPC_URL_SONIC",
+    "PRIVATE_KEY": "PRIVATE_KEY"
+
+  },
+  "test": {
+    "comptroller": "0x30047cca309b7aac3613ae5b990cf460253c9b98",
+    "cNuma": "0x16d4b53de6aba4b68480c7a3b6711df25fcb12d7",
+    "cLst": "0xb2a43445b97cd6a179033788d763b8d0c0487e36",
+    "vault": "0xed84043cba395bd3eacec6b378e49cd66e94941d",
+    "oracle": "0xa92025d87128c1e2dcc0a08afbc945547ca3b084",
+    "lst": "0xe5da20f15420ad15de0fa650600afc998bbe3955",
+    "RPC_URL": "http:127.0.0.1:8545/",
+    "PRIVATE_KEY": "f0fe185e88adafdd324e6b7275314e368d140e5de7bc850952ac315ad95fad32"
+
+  }
+}
+
+
