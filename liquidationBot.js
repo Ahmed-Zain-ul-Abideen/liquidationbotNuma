@@ -236,6 +236,75 @@ function decimalToBigInt(num, decimals) {
   return BigInt(Math.round(num * scale));
 }
 
+
+async function monitorLoop() {
+
+    const borrowers = await getBorrowersWithLTV();
+    for (const addr of borrowers) {
+        const data = await getBorrowerData(addr);
+        if (data.liquidationType != 0)
+        {
+            // liquidation possible
+            if (data.liquidityInVault)
+            {
+                // we don't need to provide liquidity
+                if (data.liquidationType == 1)
+                {     
+                    
+                    console.log("💀 Liquidating borrower (std):", addr);
+                    console.log(data.liquidationAmount)  ;  
+                    try {
+                        await vault.liquidateLstBorrower(addr,
+                            decimalToBigInt(data.liquidationAmount, 18),
+                            true,
+                            false// no flashloan for this one to test it
+                        )
+                    } catch (e) {
+                        console.log("Error during liquidation:", e);
+                    }
+                }
+                // else if (data.liquidationType == 2)
+                // {
+                //     await vault.liquidateLstBorrower(addr,
+                //         data.liquidationAmount,
+                //         true,
+                //         true
+                //     )
+                // }
+                else if (data.liquidationType == 3) {
+                    console.log("💀 Liquidating borrower (bad debt):", addr);
+                    console.log(data.liquidationAmount);
+                    try {
+                        await vault.liquidateLstBorrower(addr,
+                            decimalToBigInt(data.liquidationAmount, 18),
+                            true,
+                            true
+                        )
+                    } catch (e) {
+                        console.log("Error during liquidation:", e);
+                    }
+                }
+                // else if (data.liquidationType == 4)
+                // {
+                //     // TODO
+                //     // BAD DEBT liquidation
+
+                // }
+            }
+            else
+            {
+                // TODO: provide liquidity
+            }
+        }
+
+
+    } 
+    console.log("********************************");
+
+    
+}
+
+
 async function main() {
     console.log("🚀 Liquidation bot started...");
 
@@ -270,75 +339,17 @@ async function main() {
         // approve for liquidation using bot's sts
         await sts.approve(vaultAddress, BigInt(2)**BigInt(256)-BigInt(1));
 
-        while (true) {
-        const borrowers = await getBorrowersWithLTV();
-        for (const addr of borrowers) {
-            const data = await getBorrowerData(addr);
-            if (data.liquidationType != 0)
-            {
-                // liquidation possible
-                if (data.liquidityInVault)
-                {
-                    // we don't need to provide liquidity
-                    if (data.liquidationType == 1)
-                    {     
-                       
-                        console.log("💀 Liquidating borrower (std):", addr);
-                        console.log(data.liquidationAmount)  ;  
-                        try {
-                            await vault.liquidateLstBorrower(addr,
-                                decimalToBigInt(data.liquidationAmount, 18),
-                                true,
-                                false// no flashloan for this one to test it
-                            )
-                        } catch (e) {
-                            console.log("Error during liquidation:", e);
-                        }
-                    }
-                    // else if (data.liquidationType == 2)
-                    // {
-                    //     await vault.liquidateLstBorrower(addr,
-                    //         data.liquidationAmount,
-                    //         true,
-                    //         true
-                    //     )
-                    // }
-                    else if (data.liquidationType == 3) {
-                        console.log("💀 Liquidating borrower (bad debt):", addr);
-                        console.log(data.liquidationAmount);
-                        try {
-                            await vault.liquidateLstBorrower(addr,
-                                decimalToBigInt(data.liquidationAmount, 18),
-                                true,
-                                true
-                            )
-                        } catch (e) {
-                            console.log("Error during liquidation:", e);
-                        }
-                    }
-                    // else if (data.liquidationType == 4)
-                    // {
-                    //     // TODO
-                    //     // BAD DEBT liquidation
 
-                    // }
-                }
-                else
-                {
-                    // TODO: provide liquidity
-                }
+        // 🔁 Run every 5s, without blocking deployment
+        setInterval(monitorLoop, 5000);
 
-
-            }
-
-        }
- 
-        console.log("********************************");
+         
+        
 
         // Wait before next scan
         await new Promise((resolve) => setTimeout(resolve, 5000)); // 5s delay
     }
 }
-}
+
 
 main();
