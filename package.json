@@ -12,7 +12,8 @@
     "bot": "node liquidationBot.js test",
     "botV2": "node liquidationBotV2.js test",
     "botlist": "node liquidationBot.js -l test",
-    "check": "forge test --rpc-url fork -vv"
+    "check": "forge test --rpc-url fork -vv",
+    "start": "npm run fork & sleep 55 && npm run setup && npm run bot"
   },
   "keywords": [],
   "author": "",
