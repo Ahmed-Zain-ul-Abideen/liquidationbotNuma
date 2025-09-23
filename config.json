@@ -27,7 +27,7 @@
     "vault": "0xed84043cba395bd3eacec6b378e49cd66e94941d",
     "oracle": "0xa92025d87128c1e2dcc0a08afbc945547ca3b084",
     "lst": "0xe5da20f15420ad15de0fa650600afc998bbe3955",
-    "RPC_URL": "http:127.0.0.1:8545/",
+    "RPC_URL": "https://photokinetic-reasonably-sylvester.ngrok-free.dev",
     "PRIVATE_KEY": "f0fe185e88adafdd324e6b7275314e368d140e5de7bc850952ac315ad95fad32"
 
   }
