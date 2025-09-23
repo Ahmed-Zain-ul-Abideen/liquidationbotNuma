@@ -242,6 +242,10 @@ async function monitorLoop() {
     const borrowers = await getBorrowersWithLTV();
     for (const addr of borrowers) {
         const data = await getBorrowerData(addr);
+        if (!data) {
+            console.warn(`⚠️ Skipping ${addr}, no data returned.`);
+            continue; // prevents crash
+        }
         if (data.liquidationType != 0)
         {
             // liquidation possible
@@ -340,8 +344,8 @@ async function main() {
         await sts.approve(vaultAddress, BigInt(2)**BigInt(256)-BigInt(1));
 
 
-        // 🔁 Run every 5s, without blocking deployment
-        setInterval(monitorLoop, 5000);
+        // 🔁 Run every 30s, without blocking deployment
+        setInterval(monitorLoop, 30000); // 30 seconds
 
          
         
