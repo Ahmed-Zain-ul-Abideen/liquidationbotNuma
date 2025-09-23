@@ -1,4 +1,6 @@
 import express from "express";
+// ✅ Force default argument for bot.js
+process.argv.push("test");
 import { main } from "./liquidationBot.js"; // export main from your bot.js
 
 const app = express();
