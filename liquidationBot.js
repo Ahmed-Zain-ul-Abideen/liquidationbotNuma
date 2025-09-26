@@ -3,9 +3,9 @@ import dotenv from "dotenv";
 dotenv.config();
 import fs from 'fs/promises';
 import process from 'process';
-import { readFileSync } from 'fs';
-const nodemailer = require("nodemailer");
-const sgTransport = require("nodemailer-sendgrid");
+import { readFileSync } from 'fs';  
+import nodemailer from  "nodemailer";
+import sgTransport from  "nodemailer-sendgrid";
 
 const config = JSON.parse(readFileSync('./config.json', 'utf8'));
 // You can also use a lightweight CLI parser like `minimist` if needed
@@ -29,12 +29,11 @@ if (!chainName) {
 const lastAlertSent = new Map();
 const ALERT_COOLDOWN_MS = 2 * 60 * 1000; // 2 minutes
 
-
-const transporter = nodemailer.createTransport(
-  sgTransport({
-    apiKey: process.env.SENDGRID_API_KEY,
-  })
-);
+const transporter = nodemailer.createTransport(sgTransport({
+  auth: {
+    api_key: process.env.SENDGRID_API_KEY
+  }
+}));
 
 
 async function sendAlertEmail(borrower, vaultBalance, liquidationAmount) {
