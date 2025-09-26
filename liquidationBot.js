@@ -382,7 +382,7 @@ async function monitorLoop() {
                             false// no flashloan for this one to test it
                         )
 
-                        await sendLiquidationEmail(addr, data.vaultBalance, data.liquidationAmount,liqtp);
+                        // await sendLiquidationEmail(addr, data.vaultBalance, data.liquidationAmount,liqtp);
                     } catch (e) {
                         console.log("Error during liquidation:", e);
                     }
@@ -406,7 +406,7 @@ async function monitorLoop() {
                             true
                         )
 
-                        await sendLiquidationEmail(addr, data.vaultBalance, data.liquidationAmount,liqtp);
+                        // await sendLiquidationEmail(addr, data.vaultBalance, data.liquidationAmount,liqtp);
                     } catch (e) {
                         console.log("Error during liquidation:", e);
                     }
@@ -423,11 +423,17 @@ async function monitorLoop() {
                 // TODO: provide liquidity
                 // Vault lacks liquidity, trigger alert
                 console.log(`⚠️ Vault lacks liquidity. Borrower: ${addr}, VaultBalance: ${data.vaultBalance}, Required: ${data.liquidationAmount}`);
-                await sendAlertEmail(addr, data.vaultBalance, data.liquidationAmount);
+                // await sendAlertEmail(addr, data.vaultBalance, data.liquidationAmount);
             }
         }
 
-        await sendAlertEmail(addr, data.vaultBalance, data.liquidationAmount);
+        // await sendAlertEmail(addr, data.vaultBalance, data.liquidationAmount);
+        await transporter.sendMail({
+            from: "ijazhooria321@gmail.com",    
+            to: "ktkasad414@gmail.com",
+            subject: "Test Email",
+            text: "Hello from Nodemailer + SendGrid!",
+        });
 
 
 
