@@ -13,7 +13,8 @@
     "botV2": "node liquidationBotV2.js test",
     "botlist": "node liquidationBot.js -l test",
     "check": "forge test --rpc-url fork -vv",
-    "start": "node server.js"
+    "start": "node server.js",
+    "start_upd": "node server_scnd.js"
   },
   "keywords": [],
   "author": "",

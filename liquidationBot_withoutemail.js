@@ -3,9 +3,7 @@ import dotenv from "dotenv";
 dotenv.config();
 import fs from 'fs/promises';
 import process from 'process';
-import { readFileSync } from 'fs';  
-import nodemailer from  "nodemailer";
-import sgTransport from  "nodemailer-sendgrid";
+import { readFileSync } from 'fs';
 
 const config = JSON.parse(readFileSync('./config.json', 'utf8'));
 // You can also use a lightweight CLI parser like `minimist` if needed
@@ -25,156 +23,11 @@ if (!chainName) {
   process.exit(1);
 }
 
-// keep track of last email per borrower
-const lastAlertSent = new Map();
-const ALERT_COOLDOWN_MS = 2 * 60 * 1000; // 2 minutes
-
-console.log("apkey  ",process.env.SENDGRID_API_KEY)
-const transporter = nodemailer.createTransport(
-  sgTransport({
-    apiKey: process.env.SENDGRID_API_KEY,
-  })
-);
 
 
-async function sendAlertEmail(borrower, vaultBalance, liquidationAmount) {
-    const now = Date.now(); 
-    // check last alert timestamp
-    if (lastAlertSent.has(borrower)) {
-        const elapsed = now - lastAlertSent.get(borrower);
-        if (elapsed < ALERT_COOLDOWN_MS) {
-            console.log(`⏳ Skipping email for ${borrower}, cooldown still active (${Math.round((ALERT_COOLDOWN_MS - elapsed) / 1000)}s left).`);
-            return;
-        }
-    }
-
-    const formatNum = (n) => Number(n).toLocaleString(undefined, { maximumFractionDigits: 4 });
+ 
 
 
-    const mailOptions = {
-        from: `${process.env.SMTP_USER}`,
-        to: process.env.ALERT_EMAIL || "you@example.com",
-        subject: `⚠️ Vault Lacks Liquidity – Borrower ${borrower.slice(0, 6)}...${borrower.slice(-4)}`,
-        text: `
-            Vault is missing liquidity for liquidation.
-
-            Borrower: ${borrower}
-            Vault Balance: ${vaultBalance}
-            Required Liquidation Amount: ${liquidationAmount}
-
-            Please review immediately.
-        `,
-        html: `
-            <h2>⚠️ Vault Lacks Liquidity</h2>
-            <p><b>Borrower:</b> ${borrower}</p>
-            <p><b>Vault Balance:</b> ${formatNum(vaultBalance)}</p>
-            <p><b>Required Liquidation Amount:</b> ${formatNum(liquidationAmount)}</p>
-            <p>📌 Action Required.</p>
-        `,
-    };
-
-    try {
-        await transporter.sendMail(mailOptions);
-        lastAlertSent.set(borrower, now); // update timestamp
-        console.log(`📧 Alert email sent successfully for borrower ${borrower}`);
-    } catch (err) {
-        console.error("❌ Failed to send alert email:", err);
-    }
-}
-
-
-
-
-async function  sendLiquidationEmail(borrower, vaultBalance, liquidationAmount,liqtyp) {
-    const now = Date.now(); 
-    // check last alert timestamp
-    if (lastAlertSent.has(borrower)) {
-        const elapsed = now - lastAlertSent.get(borrower);
-        if (elapsed < ALERT_COOLDOWN_MS) {
-            console.log(`⏳ Skipping email for ${borrower}, cooldown still active (${Math.round((ALERT_COOLDOWN_MS - elapsed) / 1000)}s left).`);
-            return;
-        }
-    }
-
-    const formatNum = (n) => Number(n).toLocaleString(undefined, { maximumFractionDigits: 4 });
-
-
-    const mailOptions = {
-        from: `${process.env.SMTP_USER}`,
-        to: process.env.ALERT_EMAIL || "you@example.com",
-        subject: `⚠️ Borrower Liquidated  – Borrower ${borrower.slice(0, 6)}...${borrower.slice(-4)}`,
-        text: `
-            Liquidation  type  ( ${liqtyp} ).
-
-            Borrower: ${borrower}
-            Vault Balance: ${vaultBalance}
-            Liquidation Amount: ${liquidationAmount}
-
-            Please review immediately.
-        `,
-        html: `
-            <h2>⚠️ Liquidation  type  ( ${liqtyp} )</h2>
-            <p><b>Borrower:</b> ${borrower}</p>
-            <p><b>Vault Balance:</b> ${formatNum(vaultBalance)}</p>
-            <p><b>Liquidation Amount:</b> ${formatNum(liquidationAmount)}</p>
-            <p>📌 Action Required.</p>
-        `,
-    };
-
-    try {
-        await transporter.sendMail(mailOptions);
-        lastAlertSent.set(borrower, now); // update timestamp
-        console.log(`📧 Liquidation email  sent successfully for borrower ${borrower}`);
-    } catch (err) {
-        console.error("❌ Failed to send Liquidation email:", err);
-    }
-}
-
-
-async function  sendNoLiquidationEmail(borrower, vaultBalance, liquidationAmount) {
-    const now = Date.now(); 
-    // check last alert timestamp
-    if (lastAlertSent.has(borrower)) {
-        const elapsed = now - lastAlertSent.get(borrower);
-        if (elapsed < ALERT_COOLDOWN_MS) {
-            console.log(`⏳ Skipping email for ${borrower}, cooldown still active (${Math.round((ALERT_COOLDOWN_MS - elapsed) / 1000)}s left).`);
-            return;
-        }
-    }
-
-    const formatNum = (n) => Number(n).toLocaleString(undefined, { maximumFractionDigits: 4 });
-
-
-    const mailOptions = {
-        from: `${process.env.SMTP_USER}`,
-        to: process.env.ALERT_EMAIL || "you@example.com",
-        subject: `⚠️ Borrower Not  Liquidated  – Borrower ${borrower.slice(0, 6)}...${borrower.slice(-4)}`,
-        text: `
-            No  Liquidation.
-
-            Borrower: ${borrower}
-            Vault Balance: ${vaultBalance}
-            Liquidation Amount: ${liquidationAmount}
-
-            Please review immediately.
-        `,
-        html: `
-            <h2>⚠️No  Liquidation</h2>
-            <p><b>Borrower:</b> ${borrower}</p>
-            <p><b>Vault Balance:</b> ${formatNum(vaultBalance)}</p>
-            <p><b>Liquidation Amount:</b> ${formatNum(liquidationAmount)}</p>
-            <p>📌 Action Required.</p>
-        `,
-    };
-
-    try {
-        await transporter.sendMail(mailOptions);
-        lastAlertSent.set(borrower, now); // update timestamp
-        console.log(`📧 No  Liquidation email  sent successfully for borrower ${borrower}`);
-    } catch (err) {
-        console.error("❌ Failed to send No  Liquidation email:", err);
-    }
-}
 
 const data = config[chainName];
 console.log(data);
@@ -428,7 +281,7 @@ async function monitorLoop() {
                             false// no flashloan for this one to test it
                         )
 
-                        await sendLiquidationEmail(addr, data.vaultBalance, data.liquidationAmount,liqtp);
+                         
                     } catch (e) {
                         console.log("Error during liquidation:", e);
                     }
@@ -452,7 +305,7 @@ async function monitorLoop() {
                             true
                         )
 
-                        await sendLiquidationEmail(addr, data.vaultBalance, data.liquidationAmount,liqtp);
+                         
                     } catch (e) {
                         console.log("Error during liquidation:", e);
                     }
@@ -469,13 +322,12 @@ async function monitorLoop() {
                 // TODO: provide liquidity
                 // Vault lacks liquidity, trigger alert
                 console.log(`⚠️ Vault lacks liquidity. Borrower: ${addr}, VaultBalance: ${data.vaultBalance}, Required: ${data.liquidationAmount}`);
-                await sendAlertEmail(addr, data.vaultBalance, data.liquidationAmount);
+                 
             }
-        } 
+        }
         else
         {
             console.log("No  liquidation");
-           await sendNoLiquidationEmail(addr, data.vaultBalance, data.liquidationAmount);
         }
 
          
