@@ -4,7 +4,8 @@ dotenv.config();
 import fs from 'fs/promises';
 import process from 'process';
 import { readFileSync } from 'fs';
-import nodemailer from "nodemailer";
+const nodemailer = require("nodemailer");
+const sgTransport = require("nodemailer-sendgrid");
 
 const config = JSON.parse(readFileSync('./config.json', 'utf8'));
 // You can also use a lightweight CLI parser like `minimist` if needed
@@ -29,16 +30,12 @@ const lastAlertSent = new Map();
 const ALERT_COOLDOWN_MS = 2 * 60 * 1000; // 2 minutes
 
 
+const transporter = nodemailer.createTransport(
+  sgTransport({
+    apiKey: process.env.SENDGRID_API_KEY,
+  })
+);
 
-
-const transporter = nodemailer.createTransport({
-  host: "smtp.sendgrid.net",
-  port: 587,  // works since SendGrid handles connections differently
-  auth: {
-    user: "thlqbtml", // fixed username
-    pass: process.env.SENDGRID_API_KEY
-  }
-});
 
 async function sendAlertEmail(borrower, vaultBalance, liquidationAmount) {
     const now = Date.now(); 
@@ -299,7 +296,7 @@ async function getBorrowerData(address) {
 
 
     if (process.env.MAX_TEST_VAULT_BALANCE) {
-        VaultBalance = BigInt(process.env.MAX_TEST_VAULT_BALANCE);
+        let VaultBalance = BigInt(process.env.MAX_TEST_VAULT_BALANCE);
         // const cap = BigInt(process.env.MAX_TEST_VAULT_BALANCE);
         // if (VaultBalance > cap) {
         //     VaultBalance = cap;
