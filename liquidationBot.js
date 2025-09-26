@@ -52,7 +52,7 @@ async function sendAlertEmail(borrower, vaultBalance, liquidationAmount) {
 
 
     const mailOptions = {
-        from: `"Vault Monitor" <${process.env.SMTP_USER}>`,
+        from: `${process.env.SMTP_USER}`,
         to: process.env.ALERT_EMAIL || "you@example.com",
         subject: `⚠️ Vault Lacks Liquidity – Borrower ${borrower.slice(0, 6)}...${borrower.slice(-4)}`,
         text: `
@@ -100,7 +100,7 @@ async function  sendLiquidationEmail(borrower, vaultBalance, liquidationAmount,l
 
 
     const mailOptions = {
-        from: `"Vault Monitor" <${process.env.SMTP_USER}>`,
+        from: `${process.env.SMTP_USER}`,
         to: process.env.ALERT_EMAIL || "you@example.com",
         subject: `⚠️ Borrower Liquidated  – Borrower ${borrower.slice(0, 6)}...${borrower.slice(-4)}`,
         text: `
@@ -382,7 +382,7 @@ async function monitorLoop() {
                             false// no flashloan for this one to test it
                         )
 
-                        // await sendLiquidationEmail(addr, data.vaultBalance, data.liquidationAmount,liqtp);
+                        await sendLiquidationEmail(addr, data.vaultBalance, data.liquidationAmount,liqtp);
                     } catch (e) {
                         console.log("Error during liquidation:", e);
                     }
@@ -406,7 +406,7 @@ async function monitorLoop() {
                             true
                         )
 
-                        // await sendLiquidationEmail(addr, data.vaultBalance, data.liquidationAmount,liqtp);
+                        await sendLiquidationEmail(addr, data.vaultBalance, data.liquidationAmount,liqtp);
                     } catch (e) {
                         console.log("Error during liquidation:", e);
                     }
@@ -423,17 +423,17 @@ async function monitorLoop() {
                 // TODO: provide liquidity
                 // Vault lacks liquidity, trigger alert
                 console.log(`⚠️ Vault lacks liquidity. Borrower: ${addr}, VaultBalance: ${data.vaultBalance}, Required: ${data.liquidationAmount}`);
-                // await sendAlertEmail(addr, data.vaultBalance, data.liquidationAmount);
+                await sendAlertEmail(addr, data.vaultBalance, data.liquidationAmount);
             }
         }
 
         // await sendAlertEmail(addr, data.vaultBalance, data.liquidationAmount);
-        await transporter.sendMail({
-            from: "ijazhooria321@gmail.com",    
-            to: "ktkasad414@gmail.com",
-            subject: "Test Email",
-            text: "Hello from Nodemailer + SendGrid!",
-        });
+        // await transporter.sendMail({
+        //     from: "ijazhooria321@gmail.com",    
+        //     to: "ktkasad414@gmail.com",
+        //     subject: "Test Email",
+        //     text: "Hello from Nodemailer + SendGrid!",
+        // });
 
 
 
