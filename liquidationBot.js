@@ -306,6 +306,7 @@ async function monitorLoop() {
             console.warn(`⚠️ Skipping ${addr}, no data returned.`);
             continue; // prevents crash
         }
+        console.log(`📌 data.liquidationType ${data.liquidationType}     ,   data.liquidityInVault    ${data.liquidityInVault} `);
         if (data.liquidationType != 0)
         {
             // liquidation possible
