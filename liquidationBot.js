@@ -30,11 +30,11 @@ const lastAlertSent = new Map();
 const ALERT_COOLDOWN_MS = 2 * 60 * 1000; // 2 minutes
 
 console.log("apkey  ",process.env.SENDGRID_API_KEY)
-const transporter = nodemailer.createTransport(sgTransport({
-  auth: {
-    api_key: process.env.SENDGRID_API_KEY
-  }
-}));
+const transporter = nodemailer.createTransport(
+  sgTransport({
+    apiKey: process.env.SENDGRID_API_KEY,
+  })
+);
 
 
 async function sendAlertEmail(borrower, vaultBalance, liquidationAmount) {
