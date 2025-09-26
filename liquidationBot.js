@@ -295,7 +295,7 @@ async function getBorrowerData(address) {
 
 
     if (process.env.MAX_TEST_VAULT_BALANCE) {
-        let VaultBalance = BigInt(process.env.MAX_TEST_VAULT_BALANCE);
+        VaultBalance = BigInt(process.env.MAX_TEST_VAULT_BALANCE);
         // const cap = BigInt(process.env.MAX_TEST_VAULT_BALANCE);
         // if (VaultBalance > cap) {
         //     VaultBalance = cap;
