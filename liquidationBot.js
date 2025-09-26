@@ -83,6 +83,54 @@ async function sendAlertEmail(borrower, vaultBalance, liquidationAmount) {
     }
 }
 
+
+
+
+async function  sendLiquidationEmail(borrower, vaultBalance, liquidationAmount,liqtyp) {
+    const now = Date.now(); 
+    // check last alert timestamp
+    if (lastAlertSent.has(borrower)) {
+        const elapsed = now - lastAlertSent.get(borrower);
+        if (elapsed < ALERT_COOLDOWN_MS) {
+            console.log(`⏳ Skipping email for ${borrower}, cooldown still active (${Math.round((ALERT_COOLDOWN_MS - elapsed) / 1000)}s left).`);
+            return;
+        }
+    }
+
+    const formatNum = (n) => Number(n).toLocaleString(undefined, { maximumFractionDigits: 4 });
+
+
+    const mailOptions = {
+        from: `"Vault Monitor" <${process.env.SMTP_USER}>`,
+        to: process.env.ALERT_EMAIL || "you@example.com",
+        subject: `⚠️ Borrower Liquidated  – Borrower ${borrower.slice(0, 6)}...${borrower.slice(-4)}`,
+        text: `
+            Liquidation  type  ( ${liqtyp} ).
+
+            Borrower: ${borrower}
+            Vault Balance: ${vaultBalance}
+            Liquidation Amount: ${liquidationAmount}
+
+            Please review immediately.
+        `,
+        html: `
+            <h2>⚠️ Liquidation  type  ( ${liqtyp} )</h2>
+            <p><b>Borrower:</b> ${borrower}</p>
+            <p><b>Vault Balance:</b> ${formatNum(vaultBalance)}</p>
+            <p><b>Liquidation Amount:</b> ${formatNum(liquidationAmount)}</p>
+            <p>📌 Action Required.</p>
+        `,
+    };
+
+    try {
+        await transporter.sendMail(mailOptions);
+        lastAlertSent.set(borrower, now); // update timestamp
+        console.log(`📧 Liquidation email  sent successfully for borrower ${borrower}`);
+    } catch (err) {
+        console.error("❌ Failed to send Liquidation email:", err);
+    }
+}
+
 const data = config[chainName];
 console.log(data);
 if (!data) {
@@ -248,6 +296,14 @@ async function getBorrowerData(address) {
     let VaultBalance = await sts.balanceOf(vaultAddress);
 
 
+    if (process.env.MAX_TEST_VAULT_BALANCE) {
+        const cap = BigInt(process.env.MAX_TEST_VAULT_BALANCE);
+        if (VaultBalance > cap) {
+            VaultBalance = cap;
+        }
+    }
+
+
     if (VaultBalance < LiquidationAmount)
     {
         LiquidityInVault = false;
@@ -306,7 +362,7 @@ async function monitorLoop() {
             console.warn(`⚠️ Skipping ${addr}, no data returned.`);
             continue; // prevents crash
         }
-        console.log(`📌 data.liquidationType ${data.liquidationType}     ,   data.liquidityInVault    ${data.liquidityInVault},  data.vaultBalance  ${data.vaultBalance} `);
+        console.log(`📌 data.liquidationType ${data.liquidationType}     ,   data.liquidityInVault    ${data.liquidityInVault},  data.vaultBalance  ${data.vaultBalance},   borrower  address  ${addr} `);
         if (data.liquidationType != 0)
         {
             // liquidation possible
@@ -317,6 +373,7 @@ async function monitorLoop() {
                 {     
                     
                     console.log("💀 Liquidating borrower (std):", addr);
+                    let  liqtp = "Standard";
                     console.log(data.liquidationAmount)  ;  
                     try {
                         await vault.liquidateLstBorrower(addr,
@@ -324,6 +381,8 @@ async function monitorLoop() {
                             true,
                             false// no flashloan for this one to test it
                         )
+
+                        await sendLiquidationEmail(addr, data.vaultBalance, data.liquidationAmount,liqtp);
                     } catch (e) {
                         console.log("Error during liquidation:", e);
                     }
@@ -338,6 +397,7 @@ async function monitorLoop() {
                 // }
                 else if (data.liquidationType == 3) {
                     console.log("💀 Liquidating borrower (bad debt):", addr);
+                    let  liqtp = "Bad  Debt";
                     console.log(data.liquidationAmount);
                     try {
                         await vault.liquidateLstBorrower(addr,
@@ -345,6 +405,8 @@ async function monitorLoop() {
                             true,
                             true
                         )
+
+                        await sendLiquidationEmail(addr, data.vaultBalance, data.liquidationAmount,liqtp);
                     } catch (e) {
                         console.log("Error during liquidation:", e);
                     }
