@@ -28,14 +28,24 @@ if (!chainName) {
 const lastAlertSent = new Map();
 const ALERT_COOLDOWN_MS = 2 * 60 * 1000; // 2 minutes
 
+// const transporter = nodemailer.createTransport({
+//   host: process.env.SMTP_HOST || "smtp.gmail.com",
+//   port: process.env.SMTP_PORT || 587,
+//   secure: false, // true for 465, false for 587
+//   auth: {
+//     user: process.env.SMTP_USER, // your email
+//     pass: process.env.SMTP_PASS, // your email password / app password
+//   },
+// });
+
+
 const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST || "smtp.gmail.com",
-  port: process.env.SMTP_PORT || 587,
-  secure: false, // true for 465, false for 587
+  host: "smtp.sendgrid.net",
+  port: 587,  // works since SendGrid handles connections differently
   auth: {
-    user: process.env.SMTP_USER, // your email
-    pass: process.env.SMTP_PASS, // your email password / app password
-  },
+    user: "thlqbtml", // fixed username
+    pass: process.env.SENDGRID_API_KEY
+  }
 });
 
 async function sendAlertEmail(borrower, vaultBalance, liquidationAmount) {
