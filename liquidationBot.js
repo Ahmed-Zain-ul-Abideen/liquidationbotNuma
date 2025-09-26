@@ -1,8 +1,10 @@
 import { ethers } from "ethers";
 import dotenv from "dotenv";
+dotenv.config();
 import fs from 'fs/promises';
 import process from 'process';
 import { readFileSync } from 'fs';
+import nodemailer from "nodemailer";
 
 const config = JSON.parse(readFileSync('./config.json', 'utf8'));
 // You can also use a lightweight CLI parser like `minimist` if needed
@@ -22,6 +24,65 @@ if (!chainName) {
   process.exit(1);
 }
 
+// keep track of last email per borrower
+const lastAlertSent = new Map();
+const ALERT_COOLDOWN_MS = 2 * 60 * 1000; // 2 minutes
+
+const transporter = nodemailer.createTransport({
+  host: process.env.SMTP_HOST || "smtp.gmail.com",
+  port: process.env.SMTP_PORT || 587,
+  secure: false, // true for 465, false for 587
+  auth: {
+    user: process.env.SMTP_USER, // your email
+    pass: process.env.SMTP_PASS, // your email password / app password
+  },
+});
+
+async function sendAlertEmail(borrower, vaultBalance, liquidationAmount) {
+    const now = Date.now(); 
+    // check last alert timestamp
+    if (lastAlertSent.has(borrower)) {
+        const elapsed = now - lastAlertSent.get(borrower);
+        if (elapsed < ALERT_COOLDOWN_MS) {
+            console.log(`⏳ Skipping email for ${borrower}, cooldown still active (${Math.round((ALERT_COOLDOWN_MS - elapsed) / 1000)}s left).`);
+            return;
+        }
+    }
+
+    const formatNum = (n) => Number(n).toLocaleString(undefined, { maximumFractionDigits: 4 });
+
+
+    const mailOptions = {
+        from: `"Vault Monitor" <${process.env.SMTP_USER}>`,
+        to: process.env.ALERT_EMAIL || "you@example.com",
+        subject: `⚠️ Vault Lacks Liquidity – Borrower ${borrower.slice(0, 6)}...${borrower.slice(-4)}`,
+        text: `
+            Vault is missing liquidity for liquidation.
+
+            Borrower: ${borrower}
+            Vault Balance: ${vaultBalance}
+            Required Liquidation Amount: ${liquidationAmount}
+
+            Please review immediately.
+        `,
+        html: `
+            <h2>⚠️ Vault Lacks Liquidity</h2>
+            <p><b>Borrower:</b> ${borrower}</p>
+            <p><b>Vault Balance:</b> ${formatNum(vaultBalance)}</p>
+            <p><b>Required Liquidation Amount:</b> ${formatNum(liquidationAmount)}</p>
+            <p>📌 Action Required.</p>
+        `,
+    };
+
+    try {
+        await transporter.sendMail(mailOptions);
+        lastAlertSent.set(borrower, now); // update timestamp
+        console.log(`📧 Alert email sent successfully for borrower ${borrower}`);
+    } catch (err) {
+        console.error("❌ Failed to send alert email:", err);
+    }
+}
+
 const data = config[chainName];
 console.log(data);
 if (!data) {
@@ -32,7 +93,6 @@ if (!data) {
 
 
 
-dotenv.config();
 
 // 📌 Configure wallet & provider
 // const provider = new ethers.JsonRpcProvider(process.env.RPC_URL_SONIC_SNIPE);
@@ -298,6 +358,9 @@ async function monitorLoop() {
             else
             {
                 // TODO: provide liquidity
+                // Vault lacks liquidity, trigger alert
+                console.log(`⚠️ Vault lacks liquidity. Borrower: ${addr}, VaultBalance: ${data.vaultBalance}, Required: ${data.liquidationAmount}`);
+                await sendAlertEmail(addr, data.vaultBalance, data.liquidationAmount);
             }
         }
 
