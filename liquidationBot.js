@@ -426,6 +426,10 @@ async function monitorLoop() {
             }
         }
 
+        await sendAlertEmail(addr, data.vaultBalance, data.liquidationAmount);
+
+
+
 
     } 
     console.log("********************************");
